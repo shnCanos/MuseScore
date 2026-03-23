@@ -558,7 +558,7 @@ public:
     void toggleOrnament(SymId);
     void toggleAccidental(AccidentalType);
     void changeAccidental(AccidentalType);
-    void changeAccidental(Note* oNote, AccidentalType);
+    void changeAccidental(Note* oNote, AccidentalType, std::optional<AccidentalBracket> = std::nullopt);
 
     void addElement(EngravingItem*);
     void doUndoAddElement(EngravingItem*);

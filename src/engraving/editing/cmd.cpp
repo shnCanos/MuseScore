@@ -2346,7 +2346,7 @@ static void changeAccidental2(Note* n, int pitch, int tpc)
 ///   note \a note.
 //---------------------------------------------------------
 
-void Score::changeAccidental(Note* note, AccidentalType accidental)
+void Score::changeAccidental(Note* note, AccidentalType accidental, std::optional<AccidentalBracket> bracket)
 {
     Chord* chord = note ? note->chord() : nullptr;
     if (!chord) {
@@ -2405,6 +2405,12 @@ void Score::changeAccidental(Note* note, AccidentalType accidental)
              || Accidental::isMicrotonal(accidental)) {
         forceAdd = true;
     }
+    // since Note::updateAccidental doesn't have
+    // enough context to pick the correct parenthesis
+    // the accidental needs to be added here
+    else if (bracket.has_value()) {
+        forceAdd = true;
+    }
 
     for (EngravingObject* se : note->linkList()) {
         Note* ln = toNote(se);
@@ -2427,6 +2433,9 @@ void Score::changeAccidental(Note* note, AccidentalType accidental)
             Accidental* a1 = Factory::createAccidental(ln);
             a1->setParent(ln);
             a1->setAccidentalType(accidental);
+            if (bracket.has_value()) {
+                a1->setBracket(bracket.value());
+            }
             a1->setRole(AccidentalRole::USER);
             lns->undoAddElement(a1);
         } else if (a && Accidental::isMicrotonal(a->accidentalType())) {
